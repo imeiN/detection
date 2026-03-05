@@ -1,0 +1,77 @@
+{
+  "fields": [
+    {
+      "name_en": "name",
+      "name_cn": "姓名",
+      "coordinates": [[15, 20], [110, 20], [110, 45], [15, 45]],
+      "recognition_params": {
+        "pattern": "([\\u4e00-\\u9fa5]{2,4})",
+        "min_confidence": 5
+      }
+    },
+    {
+      "name_en": "id_number",
+      "name_cn": "身份证号",
+      "coordinates": [[50, 210], [115, 210], [115, 270], [50, 270]],
+      "recognition_params": {
+        "pattern": "[1-9]\\d{5}(19|20)\\d{2}((0[1-9])|(1[0-2]))(([0-2][1-9])|10|20|30|31)\\d{3}[0-9Xx]",
+        "min_confidence": 5
+      }
+    },
+    {
+      "name_en": "gender",
+      "name_cn": "性别",
+      "coordinates": [[215, 210], [285, 210], [285, 270], [215, 270]],
+      "recognition_params": {
+        "pattern": "([男女])",
+        "min_confidence": 5
+      }
+    },
+    {
+      "name_en": "ethnicity",
+      "name_cn": "民族",
+      "coordinates": [[50, 310], [275, 310], [275, 370], [50, 370]],
+      "recognition_params": {
+        "pattern": "([\\u4e00-\\u9fa5]+族?)",
+        "min_confidence": 5
+      }
+    },
+    {
+      "name_en": "birth_date",
+      "name_cn": "出生日期",
+      "coordinates": [[50, 310], [275, 310], [275, 370], [50, 370]],
+      "recognition_params": {
+        "pattern": "(\\d{4}年\\d{2}月\\d{2}日)",
+        "min_confidence": 5
+      }
+    }
+  ],
+  "image_processing_params": {
+    "gaussian_blur_kernel": [
+      1,
+      1
+    ],
+    "adaptive_thresh_max_value": 255,
+    "adaptive_thresh_method": "GAUSSIAN_C",
+    "morphology_kernel_size": [
+      2,
+      2
+    ],
+    "contrast_enhancement": false,
+    "noise_reduction": false
+  },
+  "ocr_params": {
+    "psm_modes": [
+      6,
+      13,
+      7,
+      8
+    ],
+    "languages": [
+      "chi_sim",
+      "eng"
+    ],
+    "char_whitelist": "0123456789Xx男女abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ :：年月日",
+    "min_confidence": 5
+  }
+}

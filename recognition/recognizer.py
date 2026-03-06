@@ -74,7 +74,7 @@ class FieldRecognizer:
         # 2. 图像预处理：过小则放大，再灰度/二值化
         roi = self.preprocessor.resize_for_ocr(roi, min_height=50)
         processed = self.preprocessor.preprocess(roi, self.config.image_processing_params)
-        cv2.imwrite("ROI_" + field_cfg.name_cn + '.png', processed)
+        cv2.imwrite("ROI_" + field_cfg.name_en + '.png', processed)
 
         # 3. 根据字段类型选择 OCR 参数
         lang = self._determine_lang(field_cfg)

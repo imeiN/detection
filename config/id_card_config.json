@@ -3,7 +3,7 @@
     {
       "name_en": "name",
       "name_cn": "姓名",
-      "coordinates": [[15, 20], [110, 20], [110, 45], [15, 45]],
+      "coordinates":[[62, 23], [237, 23], [237, 61], [62, 61]],
       "recognition_params": {
         "pattern": "([\\u4e00-\\u9fa5]{2,4})",
         "min_confidence": 5
@@ -12,7 +12,7 @@
     {
       "name_en": "id_number",
       "name_cn": "身份证号",
-      "coordinates": [[50, 210], [115, 210], [115, 270], [50, 270]],
+      "coordinates": [[118, 237], [329, 237], [329, 268], [118, 268]],
       "recognition_params": {
         "pattern": "[1-9]\\d{5}(19|20)\\d{2}((0[1-9])|(1[0-2]))(([0-2][1-9])|10|20|30|31)\\d{3}[0-9Xx]",
         "min_confidence": 5
@@ -21,7 +21,7 @@
     {
       "name_en": "gender",
       "name_cn": "性别",
-      "coordinates": [[215, 210], [285, 210], [285, 270], [215, 270]],
+      "coordinates": [[59, 56], [104, 56], [104, 88], [59, 88]],
       "recognition_params": {
         "pattern": "([男女])",
         "min_confidence": 5
@@ -30,7 +30,7 @@
     {
       "name_en": "ethnicity",
       "name_cn": "民族",
-      "coordinates": [[50, 310], [275, 310], [275, 370], [50, 370]],
+      "coordinates": [[147, 56], [260, 56], [260, 89], [147, 89]],
       "recognition_params": {
         "pattern": "([\\u4e00-\\u9fa5]+族?)",
         "min_confidence": 5
@@ -39,7 +39,7 @@
     {
       "name_en": "birth_date",
       "name_cn": "出生日期",
-      "coordinates": [[50, 310], [275, 310], [275, 370], [50, 370]],
+      "coordinates": [[70, 83], [256, 83], [256, 118], [70, 118]],
       "recognition_params": {
         "pattern": "(\\d{4}年\\d{2}月\\d{2}日)",
         "min_confidence": 5
@@ -47,18 +47,12 @@
     }
   ],
   "image_processing_params": {
-    "gaussian_blur_kernel": [
-      1,
-      1
-    ],
-    "adaptive_thresh_max_value": 255,
-    "adaptive_thresh_method": "GAUSSIAN_C",
-    "morphology_kernel_size": [
-      2,
-      2
-    ],
-    "contrast_enhancement": false,
-    "noise_reduction": false
+    "noise_reduction": false,
+    "noise_reduction_kernel": [3, 3],
+    "contrast_enhancement": true,
+    "clahe_clip_limit": 1.8,
+    "adaptive_thresh_block_size": 15,
+    "adaptive_thresh_c": 10
   },
   "ocr_params": {
     "psm_modes": [

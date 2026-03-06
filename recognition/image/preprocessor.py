@@ -1,6 +1,6 @@
 """图像预处理模块，用于提升 OCR 识别效果。
 
-流程：灰度化 → CLAHE 对比度增强 → 自适应二值化。
+流程：灰度化 → 去噪（可选）→ CLAHE 对比度增强（可选）→ 自适应二值化。
 """
 
 import cv2
@@ -13,22 +13,50 @@ class ImagePreprocessor:
     def preprocess(self, image: np.ndarray, params: dict = None) -> np.ndarray:
         """执行标准 OCR 预处理流程。
 
-        流程：灰度化 → CLAHE 对比度增强 → 自适应二值化。
+        流程：灰度化 → 去噪（可选）→ CLAHE 对比度增强（可选）→ 自适应二值化。
 
         Args:
             image: 输入图像（BGR 或灰度）
-            params: 可选参数，如 adaptive_thresh_block_size、adaptive_thresh_c
+            params: 可选参数，如 noise_reduction、noise_reduction_kernel、
+                contrast_enhancement、adaptive_thresh_block_size、adaptive_thresh_c
 
         Returns:
             预处理后的二值图像
         """
         params = params or {}
         gray = self.to_grayscale(image)
-        gray = self.enhance_contrast(gray)
 
-        block_size = params.get("adaptive_thresh_block_size", 21)
+        # 去噪：在二值化前减少椒盐噪点，避免噪声被误识别为文字
+        if params.get("noise_reduction", True):
+            kernel = params.get("noise_reduction_kernel", [3, 3])
+            gray = self.denoise(gray, kernel)
+
+        # CLAHE 对比度增强：光照不均时有用，但会放大噪声，默认开启
+        if params.get("contrast_enhancement", True):
+            clip_limit = params.get("clahe_clip_limit", 2.0)
+            gray = self.enhance_contrast(gray, clip_limit)
+
+        block_size = params.get("adaptive_thresh_block_size", 15)
         c_val = params.get("adaptive_thresh_c", 10)
         return self.adaptive_threshold(gray, block_size, c_val)
+
+    @staticmethod
+    def denoise(gray: np.ndarray, kernel_size=(3, 3)) -> np.ndarray:
+        """高斯模糊去噪，减少椒盐噪点，二值化前使用效果更好。
+
+        Args:
+            gray: 灰度图像
+            kernel_size: 卷积核大小，(3,3) 或 (5,5)，必须为奇数
+
+        Returns:
+            去噪后的灰度图像
+        """
+        kx, ky = kernel_size
+        if kx % 2 == 0:
+            kx += 1
+        if ky % 2 == 0:
+            ky += 1
+        return cv2.GaussianBlur(gray, (kx, ky), 0)
 
     @staticmethod
     def to_grayscale(image: np.ndarray) -> np.ndarray:
@@ -38,9 +66,14 @@ class ImagePreprocessor:
         return image
 
     @staticmethod
-    def enhance_contrast(gray: np.ndarray) -> np.ndarray:
-        """使用 CLAHE 增强局部对比度，适用于光照不均的背景。"""
-        clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+    def enhance_contrast(gray: np.ndarray, clip_limit: float = 2.0) -> np.ndarray:
+        """使用 CLAHE 增强局部对比度，适用于光照不均的背景。
+
+        Args:
+            gray: 灰度图像
+            clip_limit: 对比度限制，过大可能放大噪声，建议 1.5~2.5
+        """
+        clahe = cv2.createCLAHE(clipLimit=clip_limit, tileGridSize=(8, 8))
         return clahe.apply(gray)
 
     @staticmethod

@@ -3,11 +3,11 @@
 Helps users visually identify field coordinates on document images.
 """
 # 导入系统相关模块
-import sys
-import os
-import cv2
-import argparse
-import numpy as np
+import sys  # 提供系统相关功能，如命令行参数、路径操作
+import os   # 提供操作系统相关功能，如文件路径检查
+import cv2  # OpenCV库，用于图像处理和显示
+import numpy as np  # 数值计算库，虽然未直接使用但常用
+import argparse  # 命令行参数解析模块
 
 # 获取项目根目录路径
 # __file__是当前文件的完整路径，os.path.abspath获取绝对路径
@@ -118,69 +118,36 @@ class CoordinateMarker:
             param: 用户参数
         """
         window = 'Coordinate Marker'
+        # 鼠标左键按下事件
         if event == cv2.EVENT_LBUTTONDOWN:
-            self.drawing = True
-            self.ix, self.iy = x, y
+            self.drawing = True  # 开始绘制
+            self.ix, self.iy = x, y  # 记录起始点坐标
+        # 鼠标移动事件（且正在绘制中）
         elif event == cv2.EVENT_MOUSEMOVE and self.drawing:
+            # 先绘制所有已存在的矩形
             img = self._draw_all()
+            # 绘制当前正在拖拽的矩形（绿色）
             cv2.rectangle(img, (self.ix, self.iy), (x, y), (0, 255, 0), 2)
+            # 更新显示
             cv2.imshow(window, img)
+        # 鼠标左键释放事件
         elif event == cv2.EVENT_LBUTTONUP:
-            self.drawing = False
+            self.drawing = False  # 结束绘制
+            # 计算矩形的左上角和右下角坐标
             pt1 = (min(self.ix, x), min(self.iy, y))
             pt2 = (max(self.ix, x), max(self.iy, y))
+            # 检查矩形是否足够大（防止误触）
             if abs(pt2[0] - pt1[0]) > 10 and abs(pt2[1] - pt1[1]) > 10:
-                # 使用OpenCV窗口输入，而不是控制台input()
-                self._get_field_name_with_opencv(pt1, pt2)
+                # 提示用户输入字段名
+                x1, y1 = pt1  # 左上角
+                x2, y2 = pt2  # 右下角
+                # 生成四个顶点的坐标（顺时针顺序：左上、右上、右下、左下）
+                coords = [[x1, y1], [x2, y1], [x2, y2], [x1, y2]]
+                name = input(f"请输入区域 ({pt1}, {pt2}) , coords={coords}的字段名: ")
+                # 将新区域添加到列表中
+                self.rectangles.append({'pt1': pt1, 'pt2': pt2, 'label': name})
+            # 更新显示
             cv2.imshow(window, self._draw_all())
-
-    def _get_field_name_with_opencv(self, pt1, pt2):
-        """使用OpenCV窗口获取字段名"""
-        window = '输入字段名'
-        cv2.namedWindow(window)
-
-        # 创建一个黑色图像用于输入
-        img = np.zeros((100, 400, 3), np.uint8)
-        cv2.putText(img, "输入字段名，然后按Enter:", (10, 30),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
-
-        # 显示输入提示
-        cv2.imshow(window, img)
-
-        # 这里需要实现一个简单的文本输入
-        # 但OpenCV没有内置的文本输入功能，所以这比较复杂
-
-        # 临时解决方案：使用预定义字段名列表
-        self._show_field_selection_menu(pt1, pt2)
-
-    def _show_field_selection_menu(self, pt1, pt2):
-        """显示字段选择菜单"""
-        print("\n请选择字段类型：")
-        print("1. 姓名")
-        print("2. 身份证号")
-        print("3. 地址")
-        print("4. 出生日期")
-        print("5. 其他（自定义）")
-
-        choice = input("请输入数字选择: ").strip()
-
-        field_names = {
-            '1': '姓名',
-            '2': '身份证号',
-            '3': '地址',
-            '4': '出生日期',
-            '5': None  # 需要自定义
-        }
-
-        if choice in field_names:
-            if choice == '5':
-                name = input("请输入自定义字段名: ").strip()
-            else:
-                name = field_names[choice]
-            self.rectangles.append({'pt1': pt1, 'pt2': pt2, 'label': name})
-        else:
-            print("无效选择，请重试")
-            self._show_field_selection_menu(pt1, pt2)
 
     def run(self):
         """运行交互式坐标标记工具的主循环"""
@@ -193,8 +160,6 @@ class CoordinateMarker:
         # 主循环，处理键盘事件
         while True:
             key = cv2.waitKey(1) & 0xFF  # 等待按键，1ms超时
-            if key == 255:
-                continue
             if key == ord('q'):  # 按q退出
                 break
             elif key == ord('r'):  # 按r重置所有手动标记

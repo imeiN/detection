@@ -47,6 +47,8 @@ class RecognitionPipeline:
         image = self._load_image(image_path, detect_document)
         logger.info("图像尺寸: %dx%d", image.shape[1], image.shape[0])
 
+        cv2.imwrite('detection.png', image)
+
         logger.info("开始识别各字段...")
         field_results = self.recognizer.recognize_all(image)
 
